@@ -29,6 +29,10 @@ def main():
                         required=True,
                         help='The path to training images')
 
+    parser.add_argument('--test_path',
+                        required=True,
+                        help='The path to testing images')
+
     parser.add_argument('--mask_path',
                         required=True,
                         help='The path to mask images')
@@ -60,6 +64,7 @@ def main():
     wgan_batch_size = config.training.wgan_training_ratio * config.training.batch_size
 
     train_path = os.path.expanduser(args.train_path)
+    test_path = os.path.expanduser(args.test_path)
     mask_path = os.path.expanduser(args.mask_path)
 
     gmcnn_gan_model = gmcnn_gan.GMCNNGan(batch_size=config.training.batch_size,
@@ -75,7 +80,7 @@ def main():
         gmcnn_gan_model.load()
 
     img_dataset = datasets.Dataset(train_path=train_path,
-                                   test_path=train_path,
+                                   test_path=test_path,
                                    batch_size=wgan_batch_size,
                                    img_height=config.training.img_height,
                                    img_width=config.training.img_width)
