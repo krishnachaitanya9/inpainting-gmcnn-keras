@@ -9,8 +9,8 @@ ORIGINAL_VGG_16_SHAPE = (224, 224, 3)
 
 def build_vgg16(y_pred, use_original_vgg_shape, vgg_layers):
     """
-  Load pre-trained VGG16 from keras applications
-  """
+    Load pre-trained VGG16 from keras applications
+    """
     if use_original_vgg_shape:
         return build_vgg_original_shape(y_pred, vgg_layers)
     else:
@@ -46,17 +46,13 @@ def build_vgg_img_shape(y_pred, vgg_layers):
     vgg = VGG16(weights="imagenet", include_top=False)
 
     # Output the first three pooling layers
-    print("VGG Summary before outputs: ")
-    vgg.summary()
     vgg.outputs = [vgg.layers[i].output for i in vgg_layers]
+
     # Create model and compile
-    outs = vgg(img_norm)
-    print("VGG Summary after outputs: ")
-    vgg.summary()
-    model = Model(inputs=img, outputs=outs)
+    model = Model(inputs=img, outputs=vgg(img_norm))
     model.trainable = False
     model.compile(loss='mse', optimizer='adam')
-    model.summary()
+
     return model
 
 
