@@ -1,9 +1,10 @@
 import tensorflow as tf
-
+import tensorflow_probability as tfp
 
 def gaussian_kernel(size: int, mean: float, std: float, ):
   """Makes 2D gaussian Kernel for convolution."""
-  d = tf.distributions.Normal(mean, std)
+  # d = tf.distributions.Normal(mean, std)
+  d = tfp.distributions.Normal(mean, std)
   vals = d.prob(tf.range(start=-size, limit=size + 1, dtype=tf.float32))
   gauss_kernel = tf.einsum('i,j->ij', vals, vals)
   return gauss_kernel / tf.reduce_sum(gauss_kernel)
@@ -19,6 +20,9 @@ def blur_mask(mask, num_conv_steps, gaussian_kernel_size, gaussian_kernel_std):
   m_w = 0
   for _ in range(num_conv_steps):
     m_i = neg_mask + m_w
-    m_w = tf.nn.conv2d(m_i, filter=gaussian_filter, strides=[1, 1, 1, 1], padding='SAME') * mask
+    m_w = tf.nn.conv2d(m_i, filters=gaussian_filter, strides=[1, 1, 1, 1], padding='SAME') * mask
   m_w = tf.concat([m_w, m_w, m_w], axis=3)
   return m_w
+
+
+# d = tfp.distributions.Normal(mean, std) import tensorflow_probability as tfp

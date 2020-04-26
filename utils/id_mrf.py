@@ -48,7 +48,8 @@ def mrf_loss(y_pred_vgg, y_true_vgg, mask_resized, batch_size, nnsigma):
   height_width_axis = [1, 2]
   cs_sim_max = tf.reduce_max(cs, axis=height_width_axis)
   contextual_similarities = tf.reduce_mean(cs_sim_max, axis=[1])  # TODO norm by num of mask pixels
-  loss = -tf.log(contextual_similarities)
+
+  loss = -tf.math.log(contextual_similarities)
   loss = tf.reduce_mean(loss)  # mean over batches
   return loss
 

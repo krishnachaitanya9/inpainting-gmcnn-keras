@@ -33,7 +33,7 @@ def random_sampling(tensor_in, n, H, W, C, batch_size, indices=None):
   S = H * W
   tensor_NSC = tf.reshape(tensor_in, [batch_size, S, C])
   all_indices = list(range(S))
-  shuffled_indices = tf.random_shuffle(all_indices)
+  shuffled_indices = tf.random.shuffle(all_indices)
   indices = tf.gather(shuffled_indices, list(range(n)), axis=0) if indices is None else indices
   res = tf.gather(tensor_NSC, indices, axis=1)
   return res, indices

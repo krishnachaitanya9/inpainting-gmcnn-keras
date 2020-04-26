@@ -38,9 +38,10 @@ class Trainer:
     y_fake = -y_real
     y_dummy = np.zeros((self.gan_model.wgan_batch_size, 1))
     
-    tensorboard = callbacks.TensorBoard(self.log_path, 0)
-    tensorboard.set_model(self.gan_model.generator)
-    
+    # tensorboard = callbacks.TensorBoard(self.log_path, 0)
+    #
+    # tensorboard.set_model(self.gan_model.generator)
+
     global_step = 0
     for epoch in self.epochs_iter:
       step = 0
@@ -77,10 +78,10 @@ class Trainer:
                                             input_mask, global_step)
           m = metrics.psnr(input_img, predicted_img)
           l = {'metrics/psnr': m}
-          tensorboard.on_epoch_end(global_step, l)
+          # tensorboard.on_epoch_end(global_step, l)
           self.gan_model.save()
         
-        tensorboard.on_epoch_end(global_step, logs)
+        # tensorboard.on_epoch_end(global_step, logs)
         global_step += 1
   
   def update_progress_bar(self, generator_loss, global_discriminator_loss, local_discriminator_loss,

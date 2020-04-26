@@ -103,3 +103,8 @@ def main():
 
 if __name__ == '__main__':
   main()
+
+
+# python runner.py --train_path /Users/dhanendrasoni/Downloads/inpainting_dataset/train --mask_path /Users/dhanendrasoni/Downloads/inpainting_dataset/mask --experiment_name warmme -warm_up_generator
+#
+# /Users/dhanendrasoni/Downloads/inpainting_dataset
