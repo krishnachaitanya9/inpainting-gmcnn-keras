@@ -10,12 +10,21 @@ from utils import trainer
 from utils import training_utils
 from utils import constants
 
+# from keras.backend.tensorflow_backend import set_session
+# from tensorflow.python.keras.backend import set_session
+import tensorflow as tf
+
 log = training_utils.get_logger()
 
 MAIN_CONFIG_FILE = './config/main_config.ini'
 
 
 def main():
+  # config = tf.compat.v1.ConfigProto()
+  # config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
+  # config.log_device_placement = True  # to log device placement (on which device the operation ran)
+  # sess = tf.compat.v1.Session(config=config)
+  # set_session(sess)  # set this TensorFlow session as the default session for Keras
   parser = ArgumentParser()
   
   parser.add_argument('--train_path',

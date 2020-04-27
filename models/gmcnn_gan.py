@@ -1,7 +1,10 @@
 from functools import partial
 
 from keras.models import Model, Input
-from keras.optimizers import Adam
+# from keras.optimizers import Adam
+
+from tensorflow.keras.optimizers import Adam
+
 from keras.layers import Lambda
 from config import main_config
 from layers import custom_layers
