@@ -11,6 +11,7 @@ import numpy as np
 from keras.backend.tensorflow_backend import set_session
 import tensorflow as tf
 from PIL import Image
+from utils.metrics import psnr
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -91,5 +92,6 @@ input = [read_image(input_img), read_mask(input_mask)]
 predicted_img = gmcnn_gan_model.predict(input)
 masked_img = img_masker(input_img, input_mask)
 show_images(masked_img, predicted_img[0])
+psnr_value = psnr(read_image(input_img)[0], predicted_img[0])
 
 
