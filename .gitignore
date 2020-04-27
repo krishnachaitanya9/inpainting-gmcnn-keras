@@ -107,3 +107,4 @@ venv.bak/
 /tests/test_results/*.png
 .idea
 outputs/
+.ipynb_checkpoints/
