@@ -9,7 +9,7 @@ NORM_MASK = lambda x: x * 1. / 255
 class Dataset:
   
   def __init__(self, train_path, test_path, batch_size, img_height, img_width):
-    data_generator = ImageDataGenerator(preprocessing_function=NORM_ZERO_ONE)
+    data_generator = ImageDataGenerator(preprocessing_function=NORM_MINUS_PLUS_ONE)
     self._train_set = data_generator.flow_from_directory(train_path,
                                                          target_size=(img_height, img_width),
                                                          batch_size=batch_size,
