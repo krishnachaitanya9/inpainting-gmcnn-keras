@@ -59,10 +59,11 @@ def read_mask(image_path):
     im_resized = resize(a, (256, 256), anti_aliasing=True).reshape(1, 256, 256, 3)
     return im_resized
 
+
 def img_masker(img, mask):
     mask = imageio.imread(mask)
-    image = resize(mask, (256, 256), anti_aliasing=True)
-    im = np.asarray(imageio.imread(img))
+    mask = resize(mask, (256, 256), anti_aliasing=True)
+    im = np.asarray(resize(imageio.imread(img), (256, 256), anti_aliasing=True))
     try:
         rows, columns, channels = im.shape
         assert channels == 3
@@ -76,6 +77,7 @@ def img_masker(img, mask):
         im[:, :, each_channel][idx] = 1.0
         im[:, :, each_channel][idx] = 1.0
     return im
+
 
 def show_images(img1, img2):
     f = plt.figure()
@@ -93,5 +95,3 @@ predicted_img = gmcnn_gan_model.predict(input)
 masked_img = img_masker(input_img, input_mask)
 show_images(masked_img, predicted_img[0])
 psnr_value = psnr(read_image(input_img)[0], predicted_img[0])
-
-
