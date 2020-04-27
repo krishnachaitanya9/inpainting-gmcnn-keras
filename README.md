@@ -8,6 +8,7 @@ CUDA Toolkit: 10.0.130
 CUPTI: 10.0.130  
 CUDNN Python: 7.3.1  
 Keras: 2.2.4  
+keras-self-attention: 0.42.0
 Use conda as virtual environment and package manager recommeneded  
 
 # Generative Multi-column Convolutional Neural Networks inpainting model in Keras

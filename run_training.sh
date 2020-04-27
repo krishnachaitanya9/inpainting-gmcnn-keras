@@ -10,9 +10,10 @@
 #    └── celeb
 # Inside the mask there should all masks in jpg/png formats
 # Inside celeb folders there should all be images in jpg/png formats
-warm_up=false
+warm_up=true
 if [ ! $warm_up ]
 then
+  echo "Running Warm up generator"
   python runner.py --train_path "$1/train" --test_path "$1/test" --mask_path "$1/mask" --experiment_name dl_project -warm_up_generator
 fi
 for i in {1..5}
