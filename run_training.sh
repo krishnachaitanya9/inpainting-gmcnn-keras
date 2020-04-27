@@ -11,13 +11,17 @@
 # Inside the mask there should all masks in jpg/png formats
 # Inside celeb folders there should all be images in jpg/png formats
 warm_up=true
+inpainting=$1
 if [ ! $warm_up ]
 then
   echo "Running Warm up generator"
-  python runner.py --train_path "$1/train" --test_path "$1/test" --mask_path "$1/mask" --experiment_name dl_project -warm_up_generator
+  if ! python runner.py --train_path "$inpainting/train" --test_path "$inpainting/test" --mask_path "$inpainting/mask" --experiment_name dl_project -warm_up_generator ; then
+    echo "Warmup done"
+  fi
 fi
 for i in {1..5}
 do
-  echo "Training for $i th time"
-  python runner.py --train_path "$1/train" --test_path "$1/test" --mask_path "$1/mask" --experiment_name dl_project -from_weights
+  if python runner.py --train_path "$inpainting/train" --test_path "$inpainting/test" --mask_path "$inpainting/mask" --experiment_name dl_project -from_weights ; then
+    echo "Training for $i th time"
+  fi
 done
