@@ -12,6 +12,7 @@ from keras.backend.tensorflow_backend import set_session
 import tensorflow as tf
 from PIL import Image
 from utils.metrics import psnr
+from random import randint
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -87,11 +88,20 @@ def show_images(img1, img2):
     plt.imshow(img2)
     plt.show(block=True)
 
-
-input_img = "demo_tests/test1.jpg"
-input_mask = "demo_tests/mask1.png"
+rdint = randint(1, 200)
+input_img = f"demo_tests/{rdint}.jpg"
+input_mask = f"demo_tests/{rdint}.png"
 input = [read_image(input_img), read_mask(input_mask)]
 predicted_img = gmcnn_gan_model.predict(input)
 masked_img = img_masker(input_img, input_mask)
 show_images(masked_img, predicted_img[0])
-psnr_value = psnr(read_image(input_img)[0], predicted_img[0])
+
+psnr_list = []
+for i in range(1, 201):
+    input_img = f"demo_tests/{i}.jpg"
+    input_mask = f"demo_tests/{i}.png"
+    predicted_img = gmcnn_gan_model.predict(input)
+    psnr_value = psnr(read_image(input_img)[0], predicted_img[0])
+    psnr_list.append(psnr_value)
+average_psnr = sum(psnr_list) / len(psnr_list)
+print(f"Average PSNR = {average_psnr}")
