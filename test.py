@@ -50,15 +50,15 @@ gmcnn_gan_model.load()
 
 def read_image(image_path):
     im = imageio.imread(image_path)
-    im_resized = resize(im, (256, 256), anti_aliasing=True).reshape(1, 256, 256, 3)
-    return im_resized
+    im_resized = resize(im, (256, 256), anti_aliasing=True)
+    return np.expand_dims(im_resized, 0)
 
 
 def read_mask(image_path):
     im = Image.open(image_path).convert("RGB")
     a = np.asarray(im)  # a is readonly
-    im_resized = resize(a, (256, 256), anti_aliasing=True).reshape(1, 256, 256, 3)
-    return im_resized
+    im_resized = resize(a, (256, 256), anti_aliasing=True)
+    return np.expand_dims(im_resized, 0)
 
 
 def img_masker(img, mask):
@@ -95,11 +95,13 @@ input = [read_image(input_img), read_mask(input_mask)]
 predicted_img = gmcnn_gan_model.predict(input)
 masked_img = img_masker(input_img, input_mask)
 show_images(masked_img, predicted_img[0])
+print(f"PSNR: {psnr(input[0][0], predicted_img[0])}")
 
 psnr_list = []
 for i in range(1, 201):
     input_img = f"demo_tests/{i}.jpg"
     input_mask = f"demo_tests/{i}.png"
+    input = [read_image(input_img), read_mask(input_mask)]
     predicted_img = gmcnn_gan_model.predict(input)
     psnr_value = psnr(read_image(input_img)[0], predicted_img[0])
     psnr_list.append(psnr_value)
