@@ -142,7 +142,7 @@ class Generator(BaseModel):
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
     
-    decoder = Concatenate(axis=3)([eb1, eb2, eb3])
+    decoder = Concatenate(axis=3)([inputs, eb1, eb2, eb3])
     
     decoder = Conv2D(filters=16, kernel_size=3, strides=(1, 1), padding='same')(decoder)
     decoder = ELU()(decoder)
