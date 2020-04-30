@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-from keras.layers import Conv2D, UpSampling2D, Concatenate, Multiply, ELU
+from keras.layers import Conv2D, UpSampling2D, Concatenate, Multiply, ELU, GlobalAveragePooling2D, Dense, Permute
 from keras.models import Input, Model
 
 from layers.custom_layers import Clip, BinaryNegation
 from models.base import BaseModel
+
+import tensorflow as tf
 
 
 class Generator(BaseModel):
@@ -98,8 +100,13 @@ class Generator(BaseModel):
     
     # Encoder-branch-3
     eb3 = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same')(inputs)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3)
+    eb3_se_input = ELU(name="SE_Block_Input")(eb3)
+    eb3_se = GlobalAveragePooling2D(name="SE_global_average_pooling")(eb3_se_input)
+    eb3_se = Dense(32, activation='relu', name="SE_Dense_RELU")(eb3_se)
+    eb3_se = Dense(32, activation='tanh', name="SE_Dense_TANH")(eb3_se)
+    eb3_se = Multiply()([eb3_se_input, eb3_se])
+    # Adding the Squeeze Excitation block here
+    eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3_se_input)
     eb3 = ELU()(eb3)
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
@@ -142,7 +149,7 @@ class Generator(BaseModel):
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
     
-    decoder = Concatenate(axis=3)([inputs, eb1, eb2, eb3])
+    decoder = Concatenate(axis=3)([eb1, eb2, eb3, eb3_se])
     
     decoder = Conv2D(filters=16, kernel_size=3, strides=(1, 1), padding='same')(decoder)
     decoder = ELU()(decoder)
