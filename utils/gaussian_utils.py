@@ -3,7 +3,8 @@ import tensorflow as tf
 
 def gaussian_kernel(size: int, mean: float, std: float, ):
   """Makes 2D gaussian Kernel for convolution."""
-  d = tf.distributions.Normal(mean, std)
+  # d = tf.distributions.Normal(mean, std)
+  d = tf.distributions.Laplace(loc=mean, scale=std)
   vals = d.prob(tf.range(start=-size, limit=size + 1, dtype=tf.float32))
   gauss_kernel = tf.einsum('i,j->ij', vals, vals)
   return gauss_kernel / tf.reduce_sum(gauss_kernel)
