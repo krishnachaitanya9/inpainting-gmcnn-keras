@@ -100,13 +100,10 @@ class Generator(BaseModel):
     
     # Encoder-branch-3
     eb3 = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same')(inputs)
-    eb3_se_input = ELU(name="SE_Block_Input")(eb3)
-    eb3_se = GlobalAveragePooling2D(name="SE_global_average_pooling")(eb3_se_input)
-    eb3_se = Dense(32, activation='relu', name="SE_Dense_RELU")(eb3_se)
-    eb3_se = Dense(32, activation='tanh', name="SE_Dense_TANH")(eb3_se)
-    eb3_se = Multiply()([eb3_se_input, eb3_se])
+    eb3 = ELU()(eb3)
+
     # Adding the Squeeze Excitation block here
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3_se_input)
+    eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3)
     eb3 = ELU()(eb3)
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
@@ -125,9 +122,13 @@ class Generator(BaseModel):
     eb3 = ELU()(eb3)
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(8, 8))(
       eb3)
-    eb3 = ELU()(eb3)
+    eb3_se_input = ELU()(eb3)
+    eb3_se = GlobalAveragePooling2D(name="SE_global_average_pooling")(eb3_se_input)
+    eb3_se = Dense(32, activation='relu', name="SE_Dense_RELU")(eb3_se)
+    eb3_se = Dense(32, activation='tanh', name="SE_Dense_TANH")(eb3_se)
+    eb3_se = Multiply()([eb3_se_input, eb3_se])
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same',
-                 dilation_rate=(16, 16))(eb3)
+                 dilation_rate=(16, 16))(eb3_se_input)
     eb3 = ELU()(eb3)
     
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
@@ -149,11 +150,10 @@ class Generator(BaseModel):
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
     
-    decoder = Concatenate(axis=3)([eb1, eb2, eb3])
-    
+    decoder = Concatenate(axis=3)([eb1, eb2, eb3, eb3_se])
+
     decoder = Conv2D(filters=16, kernel_size=3, strides=(1, 1), padding='same')(decoder)
     decoder = ELU()(decoder)
-    decoder = Concatenate(axis=3)([eb3_se, decoder])
     decoder = Conv2D(filters=3, kernel_size=3, strides=(1, 1), padding='same')(decoder)
     
     # linearly norm to (-1, 1)
