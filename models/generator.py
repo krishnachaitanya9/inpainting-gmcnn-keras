@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-from keras.layers import Conv2D, UpSampling2D, Concatenate, Multiply, ELU, GlobalAveragePooling2D, Dense, Permute
+from keras.layers import Conv2D, UpSampling2D, Concatenate, Multiply, ELU, GlobalAveragePooling2D, Dense
 from keras.models import Input, Model
 
 from layers.custom_layers import Clip, BinaryNegation
 from models.base import BaseModel
-
-import tensorflow as tf
 
 
 class Generator(BaseModel):
@@ -37,11 +35,8 @@ class Generator(BaseModel):
     eb1 = ELU()(eb1)
     eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
     eb1 = ELU()(eb1)
-    eb1_se_input = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    eb1 = GlobalAveragePooling2D(name="SE1_global_average_pooling")(eb1_se_input)
-    eb1 = Dense(128, activation='relu', name="SE1_Dense_RELU")(eb1)
-    eb1 = Dense(128, activation='sigmoid', name="SE1_Dense_SIGMOID")(eb1)
-    eb1 = Multiply()([eb1_se_input, eb1])
+    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
+    
     eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
       eb1)
     eb1 = ELU()(eb1)
@@ -73,11 +68,8 @@ class Generator(BaseModel):
     eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
     eb2 = ELU()(eb2)
     eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2_se_input = ELU()(eb2)
-    eb2 = GlobalAveragePooling2D(name="SE2_global_average_pooling")(eb2_se_input)
-    eb2 = Dense(128, activation='relu', name="SE2_Dense_RELU")(eb2)
-    eb2 = Dense(128, activation='sigmoid', name="SE2_Dense_SIGMOID")(eb2)
-    eb2 = Multiply()([eb2_se_input, eb2])
+    eb2 = ELU()(eb2)
+    
     eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
       eb2)
     eb2 = ELU()(eb2)
@@ -106,8 +98,12 @@ class Generator(BaseModel):
     
     # Encoder-branch-3
     eb3 = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same')(inputs)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3)
+    eb3_fg_input = ELU(name="feature_gathering")(eb3)
+    eb3_fg = GlobalAveragePooling2D(name="SE1_global_average_pooling")(eb3_fg_input)
+    eb3_fg = Dense(32, activation='relu', name="SE1_Dense_RELU")(eb3_fg)
+    eb3_fg = Dense(32, activation='sigmoid', name="SE1_Dense_SIGMOID")(eb3_fg)
+    eb3_fg_out = Multiply()([eb3_fg_input, eb3_fg])
+    eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3_fg_input)
     eb3 = ELU()(eb3)
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
@@ -116,11 +112,8 @@ class Generator(BaseModel):
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3_se_input = ELU()(eb3)
-    eb3 = GlobalAveragePooling2D(name="SE3_global_average_pooling")(eb3_se_input)
-    eb3 = Dense(128, activation='relu', name="SE3_Dense_RELU")(eb3)
-    eb3 = Dense(128, activation='sigmoid', name="SE3_Dense_SIGMOID")(eb3)
-    eb3 = Multiply()([eb3_se_input, eb3])
+    eb3 = ELU()(eb3)
+    
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
       eb3)
     eb3 = ELU()(eb3)
@@ -147,13 +140,15 @@ class Generator(BaseModel):
     eb3 = ELU()(eb3)
     
     eb3 = UpSampling2D(size=(2, 2))(eb3)
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
     
-    decoder = Concatenate(axis=3)([eb1, eb2, eb3])
-
+    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
+    eb3_fd_input = ELU(name="feature_distribution_input")(eb3)
+    eb3_fd_out = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same')(eb3_fd_input)
+    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3_fd_input)
+    eb3 = ELU()(eb3)
+    attention = Multiply()([eb3_fg_out, eb3_fd_out])
+    decoder = Concatenate(axis=3)([attention, eb1, eb2, eb3])
+    
     decoder = Conv2D(filters=16, kernel_size=3, strides=(1, 1), padding='same')(decoder)
     decoder = ELU()(decoder)
     decoder = Conv2D(filters=3, kernel_size=3, strides=(1, 1), padding='same')(decoder)
