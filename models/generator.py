@@ -143,7 +143,7 @@ class Generator(BaseModel):
     
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3_fd_input = ELU(name="feature_distribution_input")(eb3)
-    eb3_fd_out = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same')(eb3_fd_input)
+    eb3_fd_out = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same', name="feature_distrib_out")(eb3_fd_input)
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3_fd_input)
     eb3 = ELU()(eb3)
     attention = Multiply()([eb3_fg_out, eb3_fd_out])
@@ -157,5 +157,5 @@ class Generator(BaseModel):
     decoder = Clip()(decoder)
     
     model = Model(name=self.model_name, inputs=[inputs_img, masks], outputs=[decoder])
-    model.summary()
+    # model.summary()
     return model
