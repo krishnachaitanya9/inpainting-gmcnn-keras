@@ -1,5 +1,5 @@
 import tensorflow as tf
-from keras.applications import VGG16
+from keras.applications import VGG19
 from keras.applications.vgg16 import preprocess_input
 from keras.layers import Input, Lambda
 from keras.models import Model
@@ -25,7 +25,7 @@ def build_vgg_original_shape(y_pred, vgg_layers):
     img)
   
   img_norm = _norm_inputs(img_reshaped)
-  vgg = VGG16(weights="imagenet", include_top=False)
+  vgg = VGG19(weights="imagenet", include_top=False)
   
   # Output the first three pooling layers
   vgg.outputs = [vgg.layers[i].output for i in vgg_layers]
@@ -43,7 +43,7 @@ def build_vgg_img_shape(y_pred, vgg_layers):
   img = Input(shape=input_shape)
   
   img_norm = _norm_inputs(img)
-  vgg = VGG16(weights="imagenet", include_top=False)
+  vgg = VGG19(weights="imagenet", include_top=False)
   
   # Output the first three pooling layers
   vgg.outputs = [vgg.layers[i].output for i in vgg_layers]

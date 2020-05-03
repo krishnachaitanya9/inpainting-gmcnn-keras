@@ -78,6 +78,7 @@ class Trainer:
           m = metrics.psnr(input_img, predicted_img)
           l = {'metrics/psnr': m}
           tensorboard.on_epoch_end(global_step, l)
+          print(f"PSNR calculated: {m}")
           self.gan_model.save()
         
         tensorboard.on_epoch_end(global_step, logs)

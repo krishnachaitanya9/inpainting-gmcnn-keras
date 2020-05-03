@@ -37,8 +37,11 @@ class Generator(BaseModel):
     eb1 = ELU()(eb1)
     eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
     eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    
+    eb1_se_input = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
+    eb1 = GlobalAveragePooling2D(name="SE1_global_average_pooling")(eb1_se_input)
+    eb1 = Dense(128, activation='relu', name="SE1_Dense_RELU")(eb1)
+    eb1 = Dense(128, activation='sigmoid', name="SE1_Dense_SIGMOID")(eb1)
+    eb1 = Multiply()([eb1_se_input, eb1])
     eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
       eb1)
     eb1 = ELU()(eb1)
@@ -70,8 +73,11 @@ class Generator(BaseModel):
     eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
     eb2 = ELU()(eb2)
     eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    
+    eb2_se_input = ELU()(eb2)
+    eb2 = GlobalAveragePooling2D(name="SE2_global_average_pooling")(eb2_se_input)
+    eb2 = Dense(128, activation='relu', name="SE2_Dense_RELU")(eb2)
+    eb2 = Dense(128, activation='sigmoid', name="SE2_Dense_SIGMOID")(eb2)
+    eb2 = Multiply()([eb2_se_input, eb2])
     eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
       eb2)
     eb2 = ELU()(eb2)
@@ -101,8 +107,6 @@ class Generator(BaseModel):
     # Encoder-branch-3
     eb3 = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same')(inputs)
     eb3 = ELU()(eb3)
-
-    # Adding the Squeeze Excitation block here
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3)
     eb3 = ELU()(eb3)
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
@@ -112,8 +116,11 @@ class Generator(BaseModel):
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    
+    eb3_se_input = ELU()(eb3)
+    eb3 = GlobalAveragePooling2D(name="SE3_global_average_pooling")(eb3_se_input)
+    eb3 = Dense(128, activation='relu', name="SE3_Dense_RELU")(eb3)
+    eb3 = Dense(128, activation='sigmoid', name="SE3_Dense_SIGMOID")(eb3)
+    eb3 = Multiply()([eb3_se_input, eb3])
     eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
       eb3)
     eb3 = ELU()(eb3)
@@ -139,18 +146,13 @@ class Generator(BaseModel):
     eb3 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
     
-    eb3_se_input = UpSampling2D(size=(2, 2))(eb3)
-
-    eb3_se = GlobalAveragePooling2D(name="SE_global_average_pooling")(eb3_se_input)
-    eb3_se = Dense(64, activation='relu', name="SE_Dense_RELU")(eb3_se)
-    eb3_se = Dense(64, activation='tanh', name="SE_Dense_TANH")(eb3_se)
-    eb3_se = Multiply()([eb3_se_input, eb3_se])
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3_se_input)
+    eb3 = UpSampling2D(size=(2, 2))(eb3)
+    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
     eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
     eb3 = ELU()(eb3)
     
-    decoder = Concatenate(axis=3)([eb3_se, eb1, eb2, eb3])
+    decoder = Concatenate(axis=3)([eb1, eb2, eb3])
 
     decoder = Conv2D(filters=16, kernel_size=3, strides=(1, 1), padding='same')(decoder)
     decoder = ELU()(decoder)
