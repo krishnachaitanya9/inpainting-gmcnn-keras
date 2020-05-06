@@ -8,158 +8,158 @@ from models.base import BaseModel
 
 
 class Generator(BaseModel):
-  
-  def __init__(self, img_height, img_width, num_channels, add_mask_as_input, output_paths):
-    self.add_mask_as_input = add_mask_as_input
-    super(Generator, self).__init__(img_height, img_width, num_channels, output_paths,
-                                    model_name='generator')
-  
-  def model(self):
-    inputs_img = Input(shape=(self.img_height, self.img_width, self.num_channels))
-    masks = Input(shape=(self.img_height, self.img_width, self.num_channels))
-    
-    neg_masks = BinaryNegation()(masks)
-    inputs = Multiply()([inputs_img, neg_masks])
-    
-    if self.add_mask_as_input:
-      inputs = Concatenate(axis=3)([inputs, masks])
-    
-    # Encoder-branch-1
-    eb1 = Conv2D(filters=32, kernel_size=7, strides=(1, 1), padding='same')(inputs)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=64, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=64, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
-      eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same', dilation_rate=(4, 4))(
-      eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same', dilation_rate=(8, 8))(
-      eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same',
-                 dilation_rate=(16, 16))(eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    eb1 = ELU()(eb1)
-    eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
-    eb1 = ELU()(eb1)
-    
-    eb1 = UpSampling2D(size=(4, 4))(eb1)
-    
-    # Encoder-branch-2
-    eb2 = Conv2D(filters=32, kernel_size=5, strides=(1, 1), padding='same')(inputs)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
-      eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same', dilation_rate=(4, 4))(
-      eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same', dilation_rate=(8, 8))(
-      eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same',
-                 dilation_rate=(16, 16))(eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    
-    eb2 = UpSampling2D(size=(2, 2))(eb2)
-    
-    eb2 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    eb2 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb2)
-    eb2 = ELU()(eb2)
-    
-    eb2 = UpSampling2D(size=(2, 2))(eb2)
-    
-    # Encoder-branch-3
-    eb3 = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same')(inputs)
-    eb3_se_input = ELU(name="feature_gathering")(eb3)
-    # eb3_fg = GlobalAveragePooling2D(name="SE1_global_average_pooling")(eb3_fg_input)
-    # eb3_fg = Dense(32, activation='relu', name="SE1_Dense_RELU")(eb3_fg)
-    # eb3_fg = Dense(32, activation='sigmoid', name="SE1_Dense_SIGMOID")(eb3_fg)
-    # eb3_fg_out = Multiply()([eb3_fg_input, eb3_fg])
-    eb3_se = GlobalAveragePooling2D(name="SE_global_average_pooling")(eb3_se_input)
-    eb3_se = Dense(32, activation='relu', name="SE_Dense_RELU")(eb3_se)
-    eb3_se = Dense(32, activation='tanh', name="SE_Dense_TANH")(eb3_se)
-    eb3_se = Multiply()([eb3_se_input, eb3_se])
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3_se_input)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
-      eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(4, 4))(
-      eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(8, 8))(
-      eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same',
-                 dilation_rate=(16, 16))(eb3)
-    eb3 = ELU()(eb3)
-    
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    
-    eb3 = UpSampling2D(size=(2, 2))(eb3)
-    
-    eb3 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    eb3 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb3)
-    eb3 = ELU()(eb3)
-    
-    eb3 = UpSampling2D(size=(2, 2))(eb3)
-    
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
-    eb3_fd_input = ELU(name="feature_distribution_input")(eb3)
-    # eb3_fd_out = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same', name="feature_distrib_out")(eb3_fd_input)
-    eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3_fd_input)
-    eb3 = ELU()(eb3)
-    # attention = Multiply()([eb3_fg_out, eb3_fd_out])
-    decoder = Concatenate(axis=3)([eb3_se, eb1, eb2, eb3])
-    
-    decoder = Conv2D(filters=16, kernel_size=3, strides=(1, 1), padding='same')(decoder)
-    decoder = ELU()(decoder)
-    decoder = Conv2D(filters=3, kernel_size=3, strides=(1, 1), padding='same')(decoder)
-    
-    # linearly norm to (-1, 1)
-    decoder = Clip()(decoder)
-    
-    model = Model(name=self.model_name, inputs=[inputs_img, masks], outputs=[decoder])
-    # model.summary()
-    return model
+
+    def __init__(self, img_height, img_width, num_channels, add_mask_as_input, output_paths):
+        self.add_mask_as_input = add_mask_as_input
+        super(Generator, self).__init__(img_height, img_width, num_channels, output_paths,
+                                        model_name='generator')
+
+    def model(self):
+        inputs_img = Input(shape=(self.img_height, self.img_width, self.num_channels))
+        masks = Input(shape=(self.img_height, self.img_width, self.num_channels))
+
+        neg_masks = BinaryNegation()(masks)
+        inputs = Multiply()([inputs_img, neg_masks])
+
+        if self.add_mask_as_input:
+            inputs = Concatenate(axis=3)([inputs, masks])
+
+        # Encoder-branch-1
+        eb1 = Conv2D(filters=32, kernel_size=7, strides=(1, 1), padding='same')(inputs)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=64, kernel_size=7, strides=(2, 2), padding='same')(eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=64, kernel_size=7, strides=(1, 1), padding='same')(eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(2, 2), padding='same')(eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
+
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
+            eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same', dilation_rate=(4, 4))(
+            eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same', dilation_rate=(8, 8))(
+            eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same',
+                     dilation_rate=(16, 16))(eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
+        eb1 = ELU()(eb1)
+        eb1 = Conv2D(filters=128, kernel_size=7, strides=(1, 1), padding='same')(eb1)
+        eb1 = ELU()(eb1)
+
+        eb1 = UpSampling2D(size=(4, 4))(eb1)
+
+        # Encoder-branch-2
+        eb2 = Conv2D(filters=32, kernel_size=5, strides=(1, 1), padding='same')(inputs)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=64, kernel_size=5, strides=(2, 2), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(2, 2), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
+            eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same', dilation_rate=(4, 4))(
+            eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same', dilation_rate=(8, 8))(
+            eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same',
+                     dilation_rate=(16, 16))(eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=128, kernel_size=5, strides=(1, 1), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+
+        eb2 = UpSampling2D(size=(2, 2))(eb2)
+
+        eb2 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+        eb2 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb2)
+        eb2 = ELU()(eb2)
+
+        eb2 = UpSampling2D(size=(2, 2))(eb2)
+
+        # Encoder-branch-3
+        eb3 = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same')(inputs)
+        eb3_se_input = ELU(name="feature_gathering")(eb3)
+        # eb3_fg = GlobalAveragePooling2D(name="SE1_global_average_pooling")(eb3_fg_input)
+        # eb3_fg = Dense(32, activation='relu', name="SE1_Dense_RELU")(eb3_fg)
+        # eb3_fg = Dense(32, activation='sigmoid', name="SE1_Dense_SIGMOID")(eb3_fg)
+        # eb3_fg_out = Multiply()([eb3_fg_input, eb3_fg])
+        eb3_se = GlobalAveragePooling2D(name="SE_global_average_pooling")(eb3_se_input)
+        eb3_se = Dense(32, activation='relu', name="SE_Dense_RELU")(eb3_se)
+        eb3_se = Dense(32, activation='tanh', name="SE_Dense_TANH")(eb3_se)
+        eb3_se = Multiply()([eb3_se_input, eb3_se])
+        eb3 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='same')(eb3_se_input)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(2, 2), padding='same')(eb3)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
+        eb3 = ELU()(eb3)
+
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(2, 2))(
+            eb3)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(4, 4))(
+            eb3)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same', dilation_rate=(8, 8))(
+            eb3)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same',
+                     dilation_rate=(16, 16))(eb3)
+        eb3 = ELU()(eb3)
+
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=128, kernel_size=3, strides=(1, 1), padding='same')(eb3)
+        eb3 = ELU()(eb3)
+
+        eb3 = UpSampling2D(size=(2, 2))(eb3)
+
+        eb3 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb3)
+        eb3 = ELU()(eb3)
+        eb3 = Conv2D(filters=64, kernel_size=5, strides=(1, 1), padding='same')(eb3)
+        eb3 = ELU()(eb3)
+
+        eb3 = UpSampling2D(size=(2, 2))(eb3)
+
+        eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3)
+        eb3_fd_input = ELU(name="feature_distribution_input")(eb3)
+        # eb3_fd_out = Conv2D(filters=32, kernel_size=3, strides=(1, 1), padding='same', name="feature_distrib_out")(eb3_fd_input)
+        eb3 = Conv2D(filters=64, kernel_size=3, strides=(1, 1), padding='same')(eb3_fd_input)
+        eb3 = ELU()(eb3)
+        # attention = Multiply()([eb3_fg_out, eb3_fd_out])
+        decoder = Concatenate(axis=3)([eb3_se, eb1, eb2, eb3])
+
+        decoder = Conv2D(filters=16, kernel_size=3, strides=(1, 1), padding='same')(decoder)
+        decoder = ELU()(decoder)
+        decoder = Conv2D(filters=3, kernel_size=3, strides=(1, 1), padding='same')(decoder)
+
+        # linearly norm to (-1, 1)
+        decoder = Clip()(decoder)
+
+        model = Model(name=self.model_name, inputs=[inputs_img, masks], outputs=[decoder])
+        # model.summary()
+        return model
