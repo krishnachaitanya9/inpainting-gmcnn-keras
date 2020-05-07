@@ -106,5 +106,5 @@ venv.bak/
 /outputs
 /tests/test_results/*.png
 .idea
-outputs/dl_project
+outputs/dl_project/
 .ipynb_checkpoints/
