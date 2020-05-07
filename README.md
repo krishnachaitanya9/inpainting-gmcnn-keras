@@ -3,7 +3,7 @@
 ### Cuda and CUDNN requirements
 Cuda: 10.1  
 CUDNN: 7.3.1 for Cuda 10.0  
-TensorFlow: 1.13.1 for GPU  
+TensorFlow: 2.1 for GPU  
 CUDA Toolkit: 10.0.130  
 CUPTI: 10.0.130  
 CUDNN Python: 7.3.1  
