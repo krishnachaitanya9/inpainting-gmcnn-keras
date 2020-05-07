@@ -1,7 +1,7 @@
 ### Requirements
 TensorFlow: 2.1 for GPU  
 Keras: 2.3.1
-Use of conda as virtual environment and package manager recommeneded  
+Use of conda as virtual environment and package manager recommended  
 
 # Generative Multi-column Convolutional Neural Networks inpainting model in Keras
 **Keras** implementation of **GMCNN** (Generative Multi-column Convolutional Neural Networks) inpainting model originally proposed at NIPS 2018:
