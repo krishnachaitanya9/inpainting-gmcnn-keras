@@ -32,9 +32,12 @@ def calculate_cosine_distances(y_true_vgg, y_pred_vgg, batch_size):
     # cosine_dist_i = tf.nn.conv2d(y_true_vgg_i, patches_i, strides=[1, 1, 1, 1],
     #                              padding='VALID', use_cudnn_on_gpu=True, name='cosine_dist')
     patches_i = extract_patches(y_true_vgg_i)
+    # cosine_dist_i = tf.nn.conv2d(y_pred_vgg_i, patches_i, strides=[1, 1, 1, 1],
+    #                              padding='VALID', use_cudnn_on_gpu=True, name='cosine_dist')
+
     cosine_dist_i = tf.nn.conv2d(y_pred_vgg_i, patches_i, strides=[1, 1, 1, 1],
-                                 padding='VALID', use_cudnn_on_gpu=True, name='cosine_dist')
-    
+                                 padding='VALID', name='cosine_dist')
+
     cosine_distances_per_batch.append(cosine_dist_i)
   
   cosine_distances = tf.concat(cosine_distances_per_batch, axis=0)
@@ -55,15 +58,26 @@ def calculate_contextual_similarity(scaled_distances, sigma=float(0.1), b=float(
 
 
 def extract_patches(vgg_features, patch_size=1):
-  patches_as_depth_vectors = tf.extract_image_patches(images=vgg_features,
-                                                      ksizes=[1, patch_size, patch_size, 1],
-                                                      strides=[1, 1, 1, 1], rates=[1, 1, 1, 1],
-                                                      padding='VALID',
-                                                      name='patches_as_depth_vectors')
-  
+  patches_as_depth_vectors = tf.image.extract_patches(images=vgg_features,
+                                                        sizes=[1, patch_size, patch_size, 1],
+                                                        strides=[1, 1, 1, 1], rates=[1, 1, 1, 1],
+                                                        padding='VALID',
+                                                        name='patches_as_depth_vectors')
+
+  # patches_as_depth_vectors = tf.extract_image_patches(images=vgg_features,
+  #                                                     ksizes=[1, patch_size, patch_size, 1],
+  #                                                     strides=[1, 1, 1, 1], rates=[1, 1, 1, 1],
+  #                                                     padding='VALID',
+  #                                                     name='patches_as_depth_vectors')
+
+  # patches_NHWC = tf.reshape(patches_as_depth_vectors,
+  #                           shape=[-1, patch_size, patch_size,
+  #                                  patches_as_depth_vectors.shape[3].value],
+  #                           name='patches_PHWC')
+
   patches_NHWC = tf.reshape(patches_as_depth_vectors,
                             shape=[-1, patch_size, patch_size,
-                                   patches_as_depth_vectors.shape[3].value],
+                                   patches_as_depth_vectors.shape[3]],
                             name='patches_PHWC')
   
   patches_HWCN = tf.transpose(patches_NHWC, perm=[1, 2, 3, 0], name='patches_HWCP')

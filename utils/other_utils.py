@@ -15,5 +15,7 @@ def crop_quarters(feature_tensor):
 
 def resize_mask(mask, vgg_features):
   h = vgg_features.shape.as_list()[1]
-  mask_resized = tf.image.resize_nearest_neighbor(mask, size=(h, h))
+  # mask_resized = tf.image.resize_nearest_neighbor(mask, size=(h, h))
+
+  mask_resized = tf.image.resize(mask, size=(h, h), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
   return mask_resized

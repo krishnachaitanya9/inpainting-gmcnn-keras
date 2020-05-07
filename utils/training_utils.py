@@ -5,6 +5,7 @@ from copy import deepcopy
 import cv2
 import numpy as np
 import tensorflow as tf
+import logging
 
 
 def create_standard_log(generator_loss: namedtuple, global_discriminator_loss: namedtuple,
@@ -45,8 +46,9 @@ def save_predicted_img(predicted_img_path, input_img, sample_pred, mask, epoch):
 
 
 def get_logger():
-  log = tf.logging
-  tf.logging.set_verbosity(tf.logging.INFO)
+  log = tf.get_logger()
+  log.setLevel(logging.INFO)
+  # tf.logging.set_verbosity(tf.logging.INFO)
   return log
 
 
