@@ -1,15 +1,7 @@
-![](https://img.shields.io/badge/Python-3.6-blue.svg) ![](https://img.shields.io/badge/Keras-2.2.4-blue.svg) ![](https://img.shields.io/badge/TensorFlow-1.12.0-blue.svg) ![](https://img.shields.io/badge/License-MIT-blue.svg)
-
-### Cuda and CUDNN requirements
-Cuda: 10.1  
-CUDNN: 7.3.1 for Cuda 10.0  
+### Requirements
 TensorFlow: 2.1 for GPU  
-CUDA Toolkit: 10.0.130  
-CUPTI: 10.0.130  
-CUDNN Python: 7.3.1  
-Keras: 2.2.4  
-keras-self-attention: 0.42.0
-Use conda as virtual environment and package manager recommeneded  
+Keras: 2.3.1
+Use of conda as virtual environment and package manager recommeneded  
 
 # Generative Multi-column Convolutional Neural Networks inpainting model in Keras
 **Keras** implementation of **GMCNN** (Generative Multi-column Convolutional Neural Networks) inpainting model originally proposed at NIPS 2018:
