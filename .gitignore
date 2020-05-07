@@ -108,3 +108,5 @@ venv.bak/
 .idea
 
 vnev/
+outputs/dl_project/
+.ipynb_checkpoints/

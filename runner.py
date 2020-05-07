@@ -9,6 +9,8 @@ from models import gmcnn_gan
 from utils import trainer
 from utils import training_utils
 from utils import constants
+from keras.backend.tensorflow_backend import set_session
+import tensorflow as tf
 
 # from keras.backend.tensorflow_backend import set_session
 # from tensorflow.python.keras.backend import set_session
@@ -112,8 +114,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
-
-# python runner.py --train_path /Users/dhanendrasoni/Downloads/inpainting_dataset/train --mask_path /Users/dhanendrasoni/Downloads/inpainting_dataset/mask --experiment_name warmme -warm_up_generator
-#
-# /Users/dhanendrasoni/Downloads/inpainting_dataset
