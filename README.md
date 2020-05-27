@@ -1,5 +1,8 @@
 # Project Report
 [Link](Deep_Learning_Project.pdf)
+
+Improvements compared to original paper: 
+- Improved PSNR (Peak Signal to Noice Ratio) from 25.70 to 27.78
 ### Requirements
 TensorFlow: 2.1 for GPU  
 Keras: 2.3.1
