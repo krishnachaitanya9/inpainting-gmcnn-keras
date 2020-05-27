@@ -1,3 +1,5 @@
+# Project Report
+[Link](Deep_Learning_Project.pdf)
 ### Requirements
 TensorFlow: 2.1 for GPU  
 Keras: 2.3.1
